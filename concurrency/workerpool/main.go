@@ -1,30 +1,44 @@
 package main
 
-import(
+import (
 	"fmt"
+	"sync"
+	"time"
 )
 
 func main(){
-	jobs := make(chan int, 100)
-	result := make(chan int, 100)
-
-	for i:=1; i<3; i++{
+	var wg sync.WaitGroup
+	jobs := make(chan int)
+	result := make(chan int)
+	now := time.Now()
+	for i:=1; i<=3; i++{
+		wg.Add(1)
 		go func(w int){
+			defer wg.Done()
 			for job := range jobs{
-				fmt.Printf("worker %d Performing job %d \n", w,  job)
+				fmt.Printf("worker %d started job %d \n", w,  job)
+				time.Sleep(time.Second)
+				fmt.Printf("worker %d finished job %d \n", w,  job)
 				result<-job*2
 			}
-			close(result)
 		}(i)
 	}
 
-	for i:= 0; i< 15; i++{
-		jobs<-i
-	}
-	close(jobs)
+	go func() {
+		for i:= 0; i< 15; i++{
+			jobs<-i
+		}
+		close(jobs)
+	}()
+	
+	go func ()  {
+		wg.Wait()
+		close(result)
+	}()
 
 	for r := range result{
-		fmt.Printf("Got job result %d\n", r)
+		fmt.Printf("result %d\n", r)
 	}
+	fmt.Println("Total time taken: ", time.Since(now))
 
 }
