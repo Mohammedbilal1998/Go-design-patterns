@@ -99,7 +99,6 @@ func (wp *WorkerPool) Stop(){
 	wp.wg.Wait()
 	close(wp.results)
 	wp.done <- struct{}{} 
-	// clear(wp.done)
 	fmt.Println("Shutdown completed")
 }
 
