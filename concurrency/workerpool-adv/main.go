@@ -102,7 +102,7 @@ func (wp *WorkerPool) Stop(){
 	fmt.Println("Shutdown completed")
 }
 
-func main(){
+func main1(){
 	wp := NewWorkerPool(3)
 
 	wp.Start()
